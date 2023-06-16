@@ -40,57 +40,70 @@ namespace Previewer
 
                 lock(LockObject)
                 {
-                    Videos.Add(videoInfo);
+                    if(videoInfo != null)
+                        Videos.Add(videoInfo);
                     LoadFilesCurrent++;
                 }
             }
         }
 
-        private static VideoInfo ObtainVideo(FileInfo file)
+        private static VideoInfo? ObtainVideo(FileInfo file)
         {
-            var capture = new VideoCapture(file.FullName);
-            var image = new Mat();
-            var frames = new List<Bitmap>();
+            if (file.Extension != ".mp4" && file.Extension != ".wmv" && file.Extension != ".avi" && file.Extension != ".mkv")
+                return null;
 
-            var indexes = new List<int>();
-            var random = new Random();
-            for (var j = 0; j < 10; j++)
+            try
             {
-                var index = 0;
-                var tryCount = 30;
-                while ((index == 0 || indexes.Any(x => Math.Abs(index - x) < 150)) && tryCount > 0)
+                var capture = new VideoCapture(file.FullName);
+                var image = new Mat();
+                var frames = new List<Bitmap>();
+                var framesByteArrays = new List<byte[]>();
+
+                var indexes = new List<int>();
+                var random = new Random();
+                for (var j = 0; j < 10; j++)
                 {
-                    index = random.Next(capture.FrameCount);
-                    tryCount--;
-                }
-
-                if (index > 0)
-                    indexes.Add(index);
-            }
-
-            var i = 0;
-
-            while (capture.IsOpened())
-            {
-                capture.Read(image);
-                if (image.Empty())
-                    break;
-
-                if (indexes.Contains(i))
-                {
-                    var imageByteArray = image.ToBytes(".jpg");
-                    Bitmap? frame = null;
-                    using (var ms = new MemoryStream(imageByteArray))
+                    var index = 0;
+                    var tryCount = 30;
+                    while ((index == 0 || indexes.Any(x => Math.Abs(index - x) < 150)) && tryCount > 0)
                     {
-                        frame = new Bitmap(ms);
+                        index = random.Next(capture.FrameCount);
+                        tryCount--;
                     }
-                    frames.Add(frame);
+
+                    if (index > 0)
+                        indexes.Add(index);
                 }
 
-                i++;
-            }
+                var i = 0;
 
-            return new VideoInfo(file.FullName, file.Name, frames);
+                while (capture.IsOpened())
+                {
+                    capture.Read(image);
+                    if (image.Empty())
+                        break;
+
+                    if (indexes.Contains(i))
+                    {
+                        var imageByteArray = image.ToBytes(".jpg");
+                        framesByteArrays.Add(imageByteArray);
+                        Bitmap? frame = null;
+                        using (var ms = new MemoryStream(imageByteArray))
+                        {
+                            frame = new Bitmap(ms);
+                        }
+                        frames.Add(frame);
+                    }
+
+                    i++;
+                }
+
+                return new VideoInfo(file.FullName, file.Name, frames, framesByteArrays);
+            }
+            catch(Exception)
+            {
+                return null;
+            }
         }
 
         public static (int, int) GetLoadFilesStatus()
@@ -168,7 +181,8 @@ namespace Previewer
 
             lock (LockObject)
             {
-                Videos[p_CurrentVideoIndex] = videoInfo;
+                if(videoInfo != null)
+                    Videos[p_CurrentVideoIndex] = videoInfo;
                 p_CurrentFrameIndex = 0;
             }
         }
@@ -185,18 +199,12 @@ namespace Previewer
                     return false;
                 }
 
-                var frame = currentVideoInfo.Frames[p_CurrentFrameIndex];
+                var frameBytes = currentVideoInfo.FramesByteArrays[p_CurrentFrameIndex];
                 var fileName = currentVideoInfo.Name.Substring(0 , currentVideoInfo.Name.LastIndexOf(".")) + ".png";
-                frame.Save(Path.Combine(TargetFilesDirectoryPath, fileName), ImageFormat.Png);
-
-                //var fileName = currentVideoInfo.Name.Substring(0, currentVideoInfo.Name.LastIndexOf(".")) + ".png";
-                //var newFilePath = Path.Combine(TargetFilesDirectoryPath, fileName);
-                //using (var ms = new MemoryStream())
-                //{
-                //    frame.Save(ms, ImageFormat.Png);
-                //    var image = Image.FromStream(ms);
-                //    image.Save(newFilePath);
-                //}
+                var filePath = Path.Combine(TargetFilesDirectoryPath, fileName);
+                if (Path.Exists(filePath))
+                    File.Delete(filePath);
+                File.WriteAllBytes(filePath, frameBytes);
 
                 reason = "";
                 return true;
