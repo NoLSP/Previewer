@@ -36,6 +36,9 @@
         private Button p_NextFrameButton = new Button();
         private Button p_PreviousFrameButton = new Button();
 
+        private Button p_SaveFrameButton = new Button();
+        private Button p_ReloadVideoButton = new Button();
+
 
         #region Windows Form Designer generated code
 
@@ -84,8 +87,21 @@
             p_LoadFilesProgressBar.Location = new Point(180, 150);
 
             p_FramePictureLabel.Size = new Size(300, 20);
-            p_FramePictureLabel.Location = new Point(350, 180);
+            p_FramePictureLabel.Location = new Point(140, 180);
             this.Controls.Add(p_FramePictureLabel);
+
+            p_SaveFrameButton.Size = new Size(100, 20);
+            p_SaveFrameButton.Location = new Point(440, 180);
+            p_SaveFrameButton.Text = "Save";
+            p_SaveFrameButton.Visible = false;
+            this.Controls.Add(p_SaveFrameButton);
+
+            p_ReloadVideoButton.Size = new Size(100, 20);
+            p_ReloadVideoButton.Location = new Point(550, 180);
+            p_ReloadVideoButton.Text = "Reload video";
+            p_ReloadVideoButton.Visible = false;
+            p_ReloadVideoButton.Click += ReloadVideoButton_Click;
+            this.Controls.Add(p_ReloadVideoButton);
 
             p_FramePictureBox.Size = new Size(720, 480);
             p_FramePictureBox.Location = new Point(140, 200);

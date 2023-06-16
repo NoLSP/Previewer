@@ -35,57 +35,61 @@ namespace Previewer
 
             foreach (var file in files)
             {
-                var videoFile = file.FullName;
-                var capture = new VideoCapture(videoFile);
-                var image = new Mat();
-                var frames = new List<Bitmap>();
-
-                var indexes = new List<int>();
-                var random = new Random();
-                for(var j = 0; j < 10; j++)
-                {
-                    var index = 0;
-                    var tryCount = 30;
-                    while ((index == 0 || indexes.Any(x => Math.Abs(index - x) < 150)) && tryCount > 0)
-                    {
-                        index = random.Next(capture.FrameCount);
-                        tryCount--;
-                    }
-
-                    if(index > 0)
-                        indexes.Add(index);
-                }
-
-                var i = 0;
-
-                while (capture.IsOpened())
-                {
-                    capture.Read(image);
-                    if (image.Empty())
-                        break;
-
-                    if (indexes.Contains(i))
-                    {
-                        var imageByteArray = image.ToBytes(".jpg");
-                        Bitmap? frame = null;
-                        using (var ms = new MemoryStream(imageByteArray))
-                        {
-                            frame = new Bitmap(ms);
-                        }
-                        frames.Add(frame);
-                    }
-
-                    i++;
-                }
+                var videoInfo = ObtainVideo(file);
 
                 lock(LockObject)
                 {
-                    Videos.Add(new VideoInfo(file.FullName, file.Name, frames));
+                    Videos.Add(videoInfo);
                     LoadFilesCurrent++;
                 }
             }
+        }
 
+        private static VideoInfo ObtainVideo(FileInfo file)
+        {
+            var capture = new VideoCapture(file.FullName);
+            var image = new Mat();
+            var frames = new List<Bitmap>();
 
+            var indexes = new List<int>();
+            var random = new Random();
+            for (var j = 0; j < 10; j++)
+            {
+                var index = 0;
+                var tryCount = 30;
+                while ((index == 0 || indexes.Any(x => Math.Abs(index - x) < 150)) && tryCount > 0)
+                {
+                    index = random.Next(capture.FrameCount);
+                    tryCount--;
+                }
+
+                if (index > 0)
+                    indexes.Add(index);
+            }
+
+            var i = 0;
+
+            while (capture.IsOpened())
+            {
+                capture.Read(image);
+                if (image.Empty())
+                    break;
+
+                if (indexes.Contains(i))
+                {
+                    var imageByteArray = image.ToBytes(".jpg");
+                    Bitmap? frame = null;
+                    using (var ms = new MemoryStream(imageByteArray))
+                    {
+                        frame = new Bitmap(ms);
+                    }
+                    frames.Add(frame);
+                }
+
+                i++;
+            }
+
+            return new VideoInfo(file.FullName, file.Name, frames);
         }
 
         public static (int, int) GetLoadFilesStatus()
@@ -155,6 +159,17 @@ namespace Previewer
             }
 
             return GetCurrentFrame();
+        }
+
+        public static void ReloadCurrentVideo()
+        {
+            var videoInfo = ObtainVideo(new FileInfo(Videos[p_CurrentVideoIndex].FilePath));
+
+            lock (LockObject)
+            {
+                Videos[p_CurrentVideoIndex] = videoInfo;
+                p_CurrentFrameIndex = 0;
+            }
         }
     }
 }
