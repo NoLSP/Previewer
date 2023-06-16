@@ -28,6 +28,9 @@ namespace Previewer
                     (current, max) = Manager.GetLoadFilesStatus();
                 }
                 this.Controls.Remove(p_LoadFilesProgressBar);
+
+                var (path, frame) = Manager.GetCurrentFrame();
+                p_FramePictureBox.Image = frame;
             }
         }
 

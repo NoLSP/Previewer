@@ -30,6 +30,8 @@
 
         private ProgressBar p_LoadFilesProgressBar = new ProgressBar();
 
+        private PictureBox p_FramePictureBox = new PictureBox();
+
 
         #region Windows Form Designer generated code
 
@@ -76,6 +78,11 @@
 
             p_LoadFilesProgressBar.Size = new Size(500, 20);
             p_LoadFilesProgressBar.Location = new Point(180, 150);
+
+            p_FramePictureBox.Size = new Size(720, 480);
+            p_FramePictureBox.Location = new Point(20, 180);
+            p_FramePictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            this.Controls.Add(p_FramePictureBox);
         }
 
         #endregion

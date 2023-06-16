@@ -12,11 +12,14 @@ namespace Previewer
     {
         public static string? SourceFilesDirectoryPath { get; set; }
         public static string? TargetFilesDirectoryPath { get; set; }
-        private static List<Dictionary<int, Bitmap>> Videos = new List<Dictionary<int, Bitmap>>();
+        private static List<VideoInfo> Videos = new List<VideoInfo>();
 
         private static object LockObject = new object();
         public static int LoadFilesMax { get; private set;}
         public static int LoadFilesCurrent { get; private set; } = 0;
+
+        private static int p_CurrentVideoIndex = 0;
+        private static int p_CurrentFrameIndex = 0;
 
         public static void LoadFiles()
         {
@@ -35,8 +38,7 @@ namespace Previewer
                 var videoFile = file.FullName;
                 var capture = new VideoCapture(videoFile);
                 var image = new Mat();
-                var frames = new Dictionary<int, Bitmap>();
-
+                var frames = new List<Bitmap>();
 
                 var indexes = new List<int>();
                 var random = new Random();
@@ -70,18 +72,20 @@ namespace Previewer
                         {
                             frame = new Bitmap(ms);
                         }
-                        frames[i] = frame;
+                        frames.Add(frame);
                     }
 
                     i++;
                 }
 
-                Videos.Add(frames);
+                Videos.Add(new VideoInfo(file.FullName, frames));
                 lock(LockObject)
                 {
                     LoadFilesCurrent++;
                 }
             }
+
+
         }
 
         public static (int, int) GetLoadFilesStatus()
@@ -90,6 +94,30 @@ namespace Previewer
             {
                 return (LoadFilesCurrent, LoadFilesMax);
             }
+        }
+
+        public static (string, Bitmap) GetCurrentFrame()
+        {
+            var videoInfo = Videos[p_CurrentVideoIndex];
+            return (videoInfo.FilePath, videoInfo.Frames[p_CurrentFrameIndex]);
+        }
+
+        public static (string, Bitmap) GetNextFrame()
+        {
+            var nextVideoIndex = p_CurrentVideoIndex;
+            var nextFrameIndex = p_CurrentVideoIndex + 1;
+
+            if (Videos[nextVideoIndex].Frames.Count() <= nextFrameIndex && Videos.Count() > nextVideoIndex)
+            {
+                nextVideoIndex = p_CurrentVideoIndex + 1;
+                nextFrameIndex = 0;
+            }
+
+            p_CurrentVideoIndex = nextVideoIndex;
+            p_CurrentFrameIndex = nextFrameIndex;
+
+            var videoInfo = Videos[p_CurrentVideoIndex];
+            return (videoInfo.FilePath, videoInfo.Frames[p_CurrentFrameIndex]);
         }
     }
 }
