@@ -71,5 +71,10 @@ namespace Previewer
             p_FramePictureBox.Image = frame;
             p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
         }
+
+        private void SaveFrameButton_Click(object sender, EventArgs e)
+        {
+            var res = Manager.SaveCurrentFrame(out var reason);
+        }
     }
 }

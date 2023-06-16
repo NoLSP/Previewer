@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using OpenCvSharp;
+using System.Drawing.Imaging;
 
 namespace Previewer
 {
@@ -169,6 +170,41 @@ namespace Previewer
             {
                 Videos[p_CurrentVideoIndex] = videoInfo;
                 p_CurrentFrameIndex = 0;
+            }
+        }
+
+        public static bool SaveCurrentFrame(out string reason)
+        {
+            var currentVideoInfo = Videos[p_CurrentVideoIndex];
+
+            try
+            {
+                if(String.IsNullOrWhiteSpace(TargetFilesDirectoryPath) || !Path.Exists(TargetFilesDirectoryPath))
+                {
+                    reason = "Incorrect target directory.";
+                    return false;
+                }
+
+                var frame = currentVideoInfo.Frames[p_CurrentFrameIndex];
+                var fileName = currentVideoInfo.Name.Substring(0 , currentVideoInfo.Name.LastIndexOf(".")) + ".png";
+                frame.Save(Path.Combine(TargetFilesDirectoryPath, fileName), ImageFormat.Png);
+
+                //var fileName = currentVideoInfo.Name.Substring(0, currentVideoInfo.Name.LastIndexOf(".")) + ".png";
+                //var newFilePath = Path.Combine(TargetFilesDirectoryPath, fileName);
+                //using (var ms = new MemoryStream())
+                //{
+                //    frame.Save(ms, ImageFormat.Png);
+                //    var image = Image.FromStream(ms);
+                //    image.Save(newFilePath);
+                //}
+
+                reason = "";
+                return true;
+            }
+            catch(Exception e)
+            {
+                reason = e.Message;
+                return false;
             }
         }
     }

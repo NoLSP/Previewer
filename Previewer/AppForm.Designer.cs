@@ -93,6 +93,7 @@
             p_SaveFrameButton.Size = new Size(100, 20);
             p_SaveFrameButton.Location = new Point(440, 180);
             p_SaveFrameButton.Text = "Save";
+            p_SaveFrameButton.Click += SaveFrameButton_Click;
             p_SaveFrameButton.Visible = false;
             this.Controls.Add(p_SaveFrameButton);
 
