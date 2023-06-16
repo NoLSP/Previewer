@@ -44,6 +44,8 @@ namespace Previewer
                 p_PreviousFrameButton.Visible = true;
                 p_NextFrameButton.Visible = true;
                 p_SaveFrameButton.Visible = true;
+                p_NextVideoButton.Visible = true;
+                p_PreviousVideoButton.Visible = true;
                 p_ReloadVideoButton.Visible = true;
             }
         }
@@ -69,6 +71,20 @@ namespace Previewer
         private void NextFrameButton_Click(object sender, EventArgs e)
         {
             var (videoName, frameNumber, framesCount, frame) = Manager.GetNextFrame();
+            p_FramePictureBox.Image = frame;
+            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+        }
+
+        private void PreviousVideoButton_Click(object sender, EventArgs e)
+        {
+            var (videoName, frameNumber, framesCount, frame) = Manager.GetPreviousVideo();
+            p_FramePictureBox.Image = frame;
+            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+        }
+
+        private void NextVideoButton_Click(object sender, EventArgs e)
+        {
+            var (videoName, frameNumber, framesCount, frame) = Manager.GetNextVideo();
             p_FramePictureBox.Image = frame;
             p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
         }

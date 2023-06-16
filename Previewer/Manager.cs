@@ -175,6 +175,38 @@ namespace Previewer
             return GetCurrentFrame();
         }
 
+        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetNextVideo()
+        {
+            lock (LockObject)
+            {
+                var lastVideoIndex = Videos.Count() - 1;
+
+                if (lastVideoIndex > p_CurrentVideoIndex)
+                {
+                    p_CurrentVideoIndex++;
+                    p_CurrentFrameIndex = 0;
+                }
+            }
+
+            return GetCurrentFrame();
+
+        }
+
+        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetPreviousVideo()
+        {
+            lock (LockObject)
+            {
+                if (p_CurrentVideoIndex - 1 >= 0)
+                {
+                    p_CurrentVideoIndex--;
+                    p_CurrentFrameIndex = 0;
+                }
+            }
+
+            return GetCurrentFrame();
+        }
+
+
         public static void ReloadCurrentVideo()
         {
             var videoInfo = ObtainVideo(new FileInfo(Videos[p_CurrentVideoIndex].FilePath));

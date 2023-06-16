@@ -35,6 +35,8 @@
 
         private Button p_NextFrameButton = new Button();
         private Button p_PreviousFrameButton = new Button();
+        private Button p_NextVideoButton = new Button();
+        private Button p_PreviousVideoButton = new Button();
 
         private Label p_SaveFrameStatusLabel = new Label();
         private Button p_SaveFrameButton = new Button();
@@ -115,18 +117,32 @@
             this.Controls.Add(p_FramePictureBox);
 
             p_PreviousFrameButton.Size = new Size(50, 100);
-            p_PreviousFrameButton.Location = new Point(45, 390);
-            p_PreviousFrameButton.Text = "<<";
+            p_PreviousFrameButton.Location = new Point(65, 390);
+            p_PreviousFrameButton.Text = "<";
             p_PreviousFrameButton.Click += PreviousFrameButton_Click;
             p_PreviousFrameButton.Visible = false;
             this.Controls.Add(p_PreviousFrameButton);
 
             p_NextFrameButton.Size = new Size(50, 100);
-            p_NextFrameButton.Location = new Point(905, 390);
-            p_NextFrameButton.Text = ">>";
+            p_NextFrameButton.Location = new Point(885, 390);
+            p_NextFrameButton.Text = ">";
             p_NextFrameButton.Visible = false;
             p_NextFrameButton.Click += NextFrameButton_Click;
             this.Controls.Add(p_NextFrameButton);
+
+            p_PreviousVideoButton.Size = new Size(50, 100);
+            p_PreviousVideoButton.Location = new Point(10, 390);
+            p_PreviousVideoButton.Text = "<<";
+            p_PreviousVideoButton.Click += PreviousVideoButton_Click;
+            p_PreviousVideoButton.Visible = false;
+            this.Controls.Add(p_PreviousVideoButton);
+
+            p_NextVideoButton.Size = new Size(50, 100);
+            p_NextVideoButton.Location = new Point(940, 390);
+            p_NextVideoButton.Text = ">>";
+            p_NextVideoButton.Visible = false;
+            p_NextVideoButton.Click += NextVideoButton_Click;
+            this.Controls.Add(p_NextVideoButton);
         }
 
         #endregion
