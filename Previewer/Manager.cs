@@ -16,8 +16,10 @@ namespace Previewer
         private static List<VideoInfo> Videos = new List<VideoInfo>();
 
         private static object LockObject = new object();
-        public static int LoadFilesMax { get; private set;}
+        public static int LoadFilesMax { get; private set; } = 1;
         public static int LoadFilesCurrent { get; private set; } = 0;
+        public static int LoadFramesMax { get; private set; } = 1;
+        public static int LoadFramesCurrent { get; private set; } = 0;
 
         private static int p_CurrentVideoIndex = 0;
         private static int p_CurrentFrameIndex = 0;
@@ -73,6 +75,10 @@ namespace Previewer
                 var image = new Mat();
                 var frames = new List<Bitmap>();
                 var framesByteArrays = new List<byte[]>();
+                lock (LockObject)
+                {
+                    LoadFramesMax = capture.FrameCount;
+                }
 
                 var indexes = GetRandomIndexes(capture.FrameCount, 10);
 
@@ -95,6 +101,8 @@ namespace Previewer
                         frames.Add(frame);
                     }
 
+                    LoadFramesCurrent = i + 1;
+
                     i++;
                 }
 
@@ -106,11 +114,11 @@ namespace Previewer
             }
         }
 
-        public static (int, int) GetLoadFilesStatus()
+        public static (int loadedVideosCount, int videosCount, int loadedFramesCount, int framesCount) GetLoadFilesStatus()
         {
             lock(LockObject)
             {
-                return (LoadFilesCurrent, LoadFilesMax);
+                return (LoadFilesCurrent, LoadFilesMax, LoadFramesCurrent, LoadFramesMax);
             }
         }
 
@@ -209,12 +217,19 @@ namespace Previewer
 
         public static void ReloadCurrentVideo()
         {
+            lock (LockObject)
+            {
+                LoadFilesMax = 1;
+                LoadFilesCurrent = 0;
+            }
+
             var videoInfo = ObtainVideo(new FileInfo(Videos[p_CurrentVideoIndex].FilePath));
 
             lock (LockObject)
             {
                 if(videoInfo != null)
                     Videos[p_CurrentVideoIndex] = videoInfo;
+                LoadFilesCurrent = 1;
                 p_CurrentFrameIndex = 0;
             }
         }

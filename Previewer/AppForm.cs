@@ -26,27 +26,53 @@ namespace Previewer
             {
                 Manager.SourceFilesDirectoryPath = openFileDialog1.SelectedPath;
                 p_SelectedSourceDirectoryLabel.Text = openFileDialog1.SelectedPath;
+                p_SelectSourceDirectoryButton.Enabled = false;
                 new Thread(() => Manager.LoadFiles()).Start();
                 Thread.Sleep(100);
-                var (current, max) = Manager.GetLoadFilesStatus();
-                p_LoadFilesProgressBar.Maximum = max;
-                this.Controls.Add(p_LoadFilesProgressBar);
-                while (current != max)
+                new Thread(() =>
                 {
-                    p_LoadFilesProgressBar.Value = current;
-                    (current, max) = Manager.GetLoadFilesStatus();
-                }
-                this.Controls.Remove(p_LoadFilesProgressBar);
+                    var (currentVideo, videosMaxCount, currentFrame, framesMaxCount) = Manager.GetLoadFilesStatus();
 
-                var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
-                SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
-                p_PreviousFrameButton.Visible = true;
-                p_NextFrameButton.Visible = true;
-                p_SaveFrameButton.Visible = true;
-                p_NextVideoButton.Visible = true;
-                p_PreviousVideoButton.Visible = true;
-                p_ReloadVideoButton.Visible = true;
+                    ActionInFormThread(() =>
+                    {
+                        p_LoadFilesProgressBar.Maximum = videosMaxCount;
+                        p_LoadFramesProgressBar.Maximum = framesMaxCount;
+                        p_StatusesPanel.Visible = true;
+                    });
+                    
+                    while (currentVideo != videosMaxCount || currentFrame != framesMaxCount)
+                    {
+                        ActionInFormThread(() => 
+                        { 
+                            p_LoadFilesProgressBar.Value = currentVideo; 
+                            p_LoadFramesProgressBar.Maximum = framesMaxCount;
+                            p_LoadFramesProgressBar.Value = currentFrame;
+                        });
+
+                        (currentVideo, videosMaxCount, currentFrame, framesMaxCount) = Manager.GetLoadFilesStatus();
+                        Thread.Sleep(100);
+                    }
+
+                    ActionInFormThread(() =>{ p_StatusesPanel.Visible = false; });
+
+                    var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
+                    ActionInFormThread(() =>
+                    {
+                        SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
+                        p_FramesManipulationsPanel.Visible = true;
+                        p_SelectSourceDirectoryButton.Enabled = true;
+                    });
+                }).Start();
             }
+        }
+
+        private void ActionInFormThread(Action action)
+        {
+            MethodInvoker m = new MethodInvoker(() =>
+            {
+                action();
+            });
+            this.Invoke(m);
         }
 
         private void SelectTargetDirectoryButton_Click(object sender, EventArgs e)
@@ -87,9 +113,54 @@ namespace Previewer
 
         private void ReloadVideoButton_Click(object sender, EventArgs e)
         {
-            Manager.ReloadCurrentVideo();
-            var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
-            SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
+            p_SelectSourceDirectoryButton.Enabled = false;
+            p_ReloadVideoButton.Enabled = false;
+            p_SaveFrameButton.Enabled = false;
+            p_PreviousVideoButton.Enabled = false;
+            p_NextVideoButton.Enabled = false;
+            p_PreviousFrameButton.Enabled = false;
+            p_NextFrameButton.Enabled = false;
+            new Thread(() => Manager.ReloadCurrentVideo()).Start();
+            Thread.Sleep(100);
+            new Thread(() =>
+            {
+                var (currentVideo, videosMaxCount, currentFrame, framesMaxCount) = Manager.GetLoadFilesStatus();
+
+                ActionInFormThread(() =>
+                {
+                    p_LoadFilesProgressBar.Maximum = videosMaxCount;
+                    p_LoadFramesProgressBar.Maximum = framesMaxCount;
+                    p_StatusesPanel.Visible = true;
+                });
+
+                while (currentVideo != videosMaxCount || currentFrame != framesMaxCount)
+                {
+                    ActionInFormThread(() =>
+                    {
+                        p_LoadFilesProgressBar.Value = currentVideo;
+                        p_LoadFramesProgressBar.Maximum = framesMaxCount;
+                        p_LoadFramesProgressBar.Value = currentFrame;
+                    });
+
+                    (currentVideo, videosMaxCount, currentFrame, framesMaxCount) = Manager.GetLoadFilesStatus();
+                    Thread.Sleep(100);
+                }
+
+                var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
+                ActionInFormThread(() =>
+                {
+                    p_StatusesPanel.Visible = false;
+                    SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
+                    p_FramesManipulationsPanel.Visible = true;
+                    p_SelectSourceDirectoryButton.Enabled = true;
+                    p_ReloadVideoButton.Enabled = true;
+                    p_SaveFrameButton.Enabled = true;
+                    p_PreviousVideoButton.Enabled = true;
+                    p_NextVideoButton.Enabled = true;
+                    p_PreviousFrameButton.Enabled = true;
+                    p_NextFrameButton.Enabled = true;
+                });
+            }).Start();
         }
 
         private void SetCurrentFrame(string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame)
