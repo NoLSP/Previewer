@@ -30,7 +30,11 @@
 
         private ProgressBar p_LoadFilesProgressBar = new ProgressBar();
 
+        private Label p_FramePictureLabel = new Label();
         private PictureBox p_FramePictureBox = new PictureBox();
+
+        private Button p_NextFrameButton = new Button();
+        private Button p_PreviousFrameButton = new Button();
 
 
         #region Windows Form Designer generated code
@@ -43,7 +47,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1000, 1000);
             this.Text = "Previewer";
 
             p_SelectSourceDirectoryLabel.Size = new Size(210, 50);
@@ -79,10 +83,28 @@
             p_LoadFilesProgressBar.Size = new Size(500, 20);
             p_LoadFilesProgressBar.Location = new Point(180, 150);
 
+            p_FramePictureLabel.Size = new Size(300, 20);
+            p_FramePictureLabel.Location = new Point(350, 180);
+            this.Controls.Add(p_FramePictureLabel);
+
             p_FramePictureBox.Size = new Size(720, 480);
-            p_FramePictureBox.Location = new Point(20, 180);
+            p_FramePictureBox.Location = new Point(140, 200);
             p_FramePictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
             this.Controls.Add(p_FramePictureBox);
+
+            p_PreviousFrameButton.Size = new Size(50, 100);
+            p_PreviousFrameButton.Location = new Point(45, 390);
+            p_PreviousFrameButton.Text = "<<";
+            p_PreviousFrameButton.Click += PreviousFrameButton_Click;
+            p_PreviousFrameButton.Visible = false;
+            this.Controls.Add(p_PreviousFrameButton);
+
+            p_NextFrameButton.Size = new Size(50, 100);
+            p_NextFrameButton.Location = new Point(905, 390);
+            p_NextFrameButton.Text = ">>";
+            p_NextFrameButton.Visible = false;
+            p_NextFrameButton.Click += NextFrameButton_Click;
+            this.Controls.Add(p_NextFrameButton);
         }
 
         #endregion

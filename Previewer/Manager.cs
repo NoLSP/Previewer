@@ -78,9 +78,9 @@ namespace Previewer
                     i++;
                 }
 
-                Videos.Add(new VideoInfo(file.FullName, frames));
                 lock(LockObject)
                 {
+                    Videos.Add(new VideoInfo(file.FullName, file.Name, frames));
                     LoadFilesCurrent++;
                 }
             }
@@ -96,28 +96,65 @@ namespace Previewer
             }
         }
 
-        public static (string, Bitmap) GetCurrentFrame()
+        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetCurrentFrame()
         {
-            var videoInfo = Videos[p_CurrentVideoIndex];
-            return (videoInfo.FilePath, videoInfo.Frames[p_CurrentFrameIndex]);
+            lock (LockObject)
+            {
+                var videoInfo = Videos[p_CurrentVideoIndex];
+                return (videoInfo.Name, p_CurrentFrameIndex + 1, videoInfo.Frames.Count(), videoInfo.Frames[p_CurrentFrameIndex]);
+            }
         }
 
-        public static (string, Bitmap) GetNextFrame()
+        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetNextFrame()
         {
-            var nextVideoIndex = p_CurrentVideoIndex;
-            var nextFrameIndex = p_CurrentVideoIndex + 1;
-
-            if (Videos[nextVideoIndex].Frames.Count() <= nextFrameIndex && Videos.Count() > nextVideoIndex)
+            lock (LockObject)
             {
-                nextVideoIndex = p_CurrentVideoIndex + 1;
-                nextFrameIndex = 0;
+                var nextVideoIndex = p_CurrentVideoIndex;
+                var nextFrameIndex = p_CurrentFrameIndex;
+
+                var lastCurrentVideoFrameIndex = Videos[nextVideoIndex].Frames.Count() - 1;
+                var lastVideoIndex = Videos.Count() - 1;
+
+                if (lastCurrentVideoFrameIndex == nextFrameIndex && lastVideoIndex > nextVideoIndex)
+                {
+                    nextVideoIndex = p_CurrentVideoIndex + 1;
+                    nextFrameIndex = 0;
+                }
+                else if(nextFrameIndex < lastCurrentVideoFrameIndex)
+                {
+                    nextFrameIndex++;
+                }
+
+                p_CurrentVideoIndex = nextVideoIndex;
+                p_CurrentFrameIndex = nextFrameIndex;
             }
 
-            p_CurrentVideoIndex = nextVideoIndex;
-            p_CurrentFrameIndex = nextFrameIndex;
+            return GetCurrentFrame();
 
-            var videoInfo = Videos[p_CurrentVideoIndex];
-            return (videoInfo.FilePath, videoInfo.Frames[p_CurrentFrameIndex]);
+        }
+
+        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetPreviousFrame()
+        {
+            lock (LockObject)
+            {
+                var previousVideoIndex = p_CurrentVideoIndex;
+                var previousFrameIndex = p_CurrentFrameIndex;
+
+                if (previousFrameIndex == 0 && previousVideoIndex - 1 >= 0)
+                {
+                    previousVideoIndex = p_CurrentVideoIndex - 1;
+                    previousFrameIndex = Videos[previousVideoIndex].Frames.Count() - 1;
+                }
+                else if(previousFrameIndex > 0)
+                {
+                    previousFrameIndex--;
+                }
+
+                p_CurrentVideoIndex = previousVideoIndex;
+                p_CurrentFrameIndex = previousFrameIndex;
+            }
+
+            return GetCurrentFrame();
         }
     }
 }

@@ -9,10 +9,12 @@ namespace Previewer
     public class VideoInfo
     {
         public string FilePath { get; set; }
+        public string Name { get; set; }
         public List<Bitmap> Frames { get; set; }
 
-        public VideoInfo(string filePath, List<Bitmap> frames) 
+        public VideoInfo(string filePath, string name, List<Bitmap> frames) 
         { 
+            Name = name;
             FilePath = filePath;
             Frames = frames;
         }
