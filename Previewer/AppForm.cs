@@ -31,16 +31,15 @@ namespace Previewer
                 var (current, max) = Manager.GetLoadFilesStatus();
                 p_LoadFilesProgressBar.Maximum = max;
                 this.Controls.Add(p_LoadFilesProgressBar);
-                while(current != max)
+                while (current != max)
                 {
                     p_LoadFilesProgressBar.Value = current;
                     (current, max) = Manager.GetLoadFilesStatus();
                 }
                 this.Controls.Remove(p_LoadFilesProgressBar);
 
-                var (videoName, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
-                p_FramePictureBox.Image = frame;
-                p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+                var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
+                SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
                 p_PreviousFrameButton.Visible = true;
                 p_NextFrameButton.Visible = true;
                 p_SaveFrameButton.Visible = true;
@@ -63,38 +62,40 @@ namespace Previewer
 
         private void PreviousFrameButton_Click(object sender, EventArgs e)
         {
-            var (videoName, frameNumber, framesCount, frame) = Manager.GetPreviousFrame();
-            p_FramePictureBox.Image = frame;
-            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+
+            var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetPreviousFrame();
+            SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
         }
 
         private void NextFrameButton_Click(object sender, EventArgs e)
         {
-            var (videoName, frameNumber, framesCount, frame) = Manager.GetNextFrame();
-            p_FramePictureBox.Image = frame;
-            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+            var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetNextFrame();
+            SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
         }
 
         private void PreviousVideoButton_Click(object sender, EventArgs e)
         {
-            var (videoName, frameNumber, framesCount, frame) = Manager.GetPreviousVideo();
-            p_FramePictureBox.Image = frame;
-            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+            var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetPreviousVideo();
+            SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
         }
 
         private void NextVideoButton_Click(object sender, EventArgs e)
         {
-            var (videoName, frameNumber, framesCount, frame) = Manager.GetNextVideo();
-            p_FramePictureBox.Image = frame;
-            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+            var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetNextVideo();
+            SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
         }
 
         private void ReloadVideoButton_Click(object sender, EventArgs e)
         {
             Manager.ReloadCurrentVideo();
-            var (videoName, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
+            var (videoName, videoNumber, videosCount, frameNumber, framesCount, frame) = Manager.GetCurrentFrame();
+            SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
+        }
+
+        private void SetCurrentFrame(string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame)
+        {
             p_FramePictureBox.Image = frame;
-            p_FramePictureLabel.Text = $"Video: {videoName}, frame: {frameNumber}/{framesCount}";
+            p_FramePictureLabel.Text = $"Video: {videoName}, video: {videoNumber}/{videosCount}, frame: {frameNumber}/{framesCount}";
         }
 
         private void SaveFrameButton_Click(object sender, EventArgs e)

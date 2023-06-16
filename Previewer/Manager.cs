@@ -47,6 +47,21 @@ namespace Previewer
             }
         }
 
+        private static List<int> GetRandomIndexes(int framesCount, int indexesCount)
+        {
+            var framesCountInSegment = framesCount / indexesCount;
+            var result = new List<int>();
+            var random = new Random();
+
+            for(var i = 0; i < indexesCount; i++)
+            {
+                var index = i * framesCountInSegment + random.Next(framesCountInSegment);
+                result.Add(index);
+            }
+
+            return result;
+        }
+
         private static VideoInfo? ObtainVideo(FileInfo file)
         {
             if (file.Extension != ".mp4" && file.Extension != ".wmv" && file.Extension != ".avi" && file.Extension != ".mkv")
@@ -59,24 +74,9 @@ namespace Previewer
                 var frames = new List<Bitmap>();
                 var framesByteArrays = new List<byte[]>();
 
-                var indexes = new List<int>();
-                var random = new Random();
-                for (var j = 0; j < 10; j++)
-                {
-                    var index = 0;
-                    var tryCount = 30;
-                    while ((index == 0 || indexes.Any(x => Math.Abs(index - x) < 150)) && tryCount > 0)
-                    {
-                        index = random.Next(capture.FrameCount);
-                        tryCount--;
-                    }
-
-                    if (index > 0)
-                        indexes.Add(index);
-                }
+                var indexes = GetRandomIndexes(capture.FrameCount, 10);
 
                 var i = 0;
-
                 while (capture.IsOpened())
                 {
                     capture.Read(image);
@@ -85,7 +85,7 @@ namespace Previewer
 
                     if (indexes.Contains(i))
                     {
-                        var imageByteArray = image.ToBytes(".jpg");
+                        var imageByteArray = image.ToBytes(".png");
                         framesByteArrays.Add(imageByteArray);
                         Bitmap? frame = null;
                         using (var ms = new MemoryStream(imageByteArray))
@@ -114,16 +114,16 @@ namespace Previewer
             }
         }
 
-        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetCurrentFrame()
+        public static (string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame) GetCurrentFrame()
         {
             lock (LockObject)
             {
                 var videoInfo = Videos[p_CurrentVideoIndex];
-                return (videoInfo.Name, p_CurrentFrameIndex + 1, videoInfo.Frames.Count(), videoInfo.Frames[p_CurrentFrameIndex]);
+                return (videoInfo.Name, p_CurrentVideoIndex + 1, Videos.Count(), p_CurrentFrameIndex + 1, videoInfo.Frames.Count(), videoInfo.Frames[p_CurrentFrameIndex]);
             }
         }
 
-        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetNextFrame()
+        public static (string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame) GetNextFrame()
         {
             lock (LockObject)
             {
@@ -151,7 +151,7 @@ namespace Previewer
 
         }
 
-        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetPreviousFrame()
+        public static (string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame) GetPreviousFrame()
         {
             lock (LockObject)
             {
@@ -175,7 +175,7 @@ namespace Previewer
             return GetCurrentFrame();
         }
 
-        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetNextVideo()
+        public static (string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame) GetNextVideo()
         {
             lock (LockObject)
             {
@@ -192,7 +192,7 @@ namespace Previewer
 
         }
 
-        public static (string videoName, int frameNumber, int framesCount, Bitmap frame) GetPreviousVideo()
+        public static (string videoName, int videoNumber, int videosCount, int frameNumber, int framesCount, Bitmap frame) GetPreviousVideo()
         {
             lock (LockObject)
             {
