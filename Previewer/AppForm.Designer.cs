@@ -36,6 +36,7 @@
         private Button p_NextFrameButton = new Button();
         private Button p_PreviousFrameButton = new Button();
 
+        private Label p_SaveFrameStatusLabel = new Label();
         private Button p_SaveFrameButton = new Button();
         private Button p_ReloadVideoButton = new Button();
 
@@ -103,6 +104,10 @@
             p_ReloadVideoButton.Visible = false;
             p_ReloadVideoButton.Click += ReloadVideoButton_Click;
             this.Controls.Add(p_ReloadVideoButton);
+
+            p_SaveFrameStatusLabel.Size = new Size(340, 20);
+            p_SaveFrameStatusLabel.Location = new Point(660, 180);
+            this.Controls.Add(p_SaveFrameStatusLabel);
 
             p_FramePictureBox.Size = new Size(720, 480);
             p_FramePictureBox.Location = new Point(140, 200);

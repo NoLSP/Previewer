@@ -2,11 +2,20 @@ namespace Previewer
 {
     public partial class AppForm : Form
     {
+        private DateTime ClearSaveExceptionDateTime = DateTime.MinValue;
+
         public AppForm()
         {
             InitializeComponent();
 
-
+            var timer = new System.Windows.Forms.Timer();
+            timer.Tick += (object? sender, EventArgs e) =>
+            {
+                if (ClearSaveExceptionDateTime < DateTime.UtcNow)
+                    p_SaveFrameStatusLabel.Text = "";
+            };
+            timer.Interval = 1000;
+            timer.Start();
         }
 
         private void SelectSourceDirectoryButton_Click(object sender, EventArgs e)
@@ -74,7 +83,18 @@ namespace Previewer
 
         private void SaveFrameButton_Click(object sender, EventArgs e)
         {
-            var res = Manager.SaveCurrentFrame(out var reason);
+            if(Manager.SaveCurrentFrame(out var reason))
+            {
+                p_SaveFrameStatusLabel.ForeColor = Color.Green;
+                p_SaveFrameStatusLabel.Text = "File saved.";
+            }
+            else
+            {
+                p_SaveFrameStatusLabel.ForeColor = Color.Red;
+                p_SaveFrameStatusLabel.Text = reason;
+            }
+
+            ClearSaveExceptionDateTime = DateTime.UtcNow.AddSeconds(3);
         }
     }
 }
