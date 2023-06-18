@@ -1,4 +1,4 @@
-namespace Previewer
+﻿namespace Previewer
 {
     public partial class AppForm : Form
     {
@@ -20,12 +20,14 @@ namespace Previewer
 
         private void SelectSourceDirectoryButton_Click(object sender, EventArgs e)
         {
-            var openFileDialog1 = new FolderBrowserDialog();
+            //var openFileDialog1 = new FolderBrowserDialog();
+            var openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Multiselect = true;
             DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
             if (result == DialogResult.OK) // Test result.
             {
-                Manager.SourceFilesDirectoryPath = openFileDialog1.SelectedPath;
-                p_SelectedSourceDirectoryLabel.Text = openFileDialog1.SelectedPath;
+                Manager.SourceFilesPaths = openFileDialog1.FileNames;
+                p_SelectedSourceDirectoryLabel.Text = $"выбрано {openFileDialog1.FileNames.Length} файлов";
                 p_SelectSourceDirectoryButton.Enabled = false;
                 new Thread(() => Manager.LoadFiles()).Start();
                 Thread.Sleep(100);

@@ -12,6 +12,7 @@ namespace Previewer
     public static class Manager
     {
         public static string? SourceFilesDirectoryPath { get; set; }
+        public static string[]? SourceFilesPaths { get; set; }
         public static string? TargetFilesDirectoryPath { get; set; }
         private static List<VideoInfo> Videos = new List<VideoInfo>();
 
@@ -24,25 +25,49 @@ namespace Previewer
         private static int p_CurrentVideoIndex = 0;
         private static int p_CurrentFrameIndex = 0;
 
+        //public static void LoadFiles()
+        //{
+        //    if (SourceFilesDirectoryPath == null || !Path.Exists(SourceFilesDirectoryPath))
+        //        throw new Exception("Source directory path incorrect");
+
+        //    var files = new DirectoryInfo(SourceFilesDirectoryPath).GetFiles();
+        //    lock (LockObject)
+        //    {
+        //        LoadFilesMax = files.Count();
+        //        LoadFilesCurrent = 0;
+        //    }
+
+        //    foreach (var file in files)
+        //    {
+        //        var videoInfo = ObtainVideo(file);
+
+        //        lock (LockObject)
+        //        {
+        //            if (videoInfo != null)
+        //                Videos.Add(videoInfo);
+        //            LoadFilesCurrent++;
+        //        }
+        //    }
+        //}
+
         public static void LoadFiles()
         {
-            if (SourceFilesDirectoryPath == null || !Path.Exists(SourceFilesDirectoryPath))
+            if (SourceFilesPaths == null || SourceFilesPaths.Any(x => !Path.Exists(x)))
                 throw new Exception("Source directory path incorrect");
 
-            var files = new DirectoryInfo(SourceFilesDirectoryPath).GetFiles();
-            lock(LockObject)
+            lock (LockObject)
             {
-                LoadFilesMax = files.Count();
+                LoadFilesMax = SourceFilesPaths.Count();
                 LoadFilesCurrent = 0;
             }
 
-            foreach (var file in files)
+            foreach (var filePath in SourceFilesPaths)
             {
-                var videoInfo = ObtainVideo(file);
+                var videoInfo = ObtainVideo(new FileInfo(filePath));
 
-                lock(LockObject)
+                lock (LockObject)
                 {
-                    if(videoInfo != null)
+                    if (videoInfo != null)
                         Videos.Add(videoInfo);
                     LoadFilesCurrent++;
                 }
@@ -78,6 +103,7 @@ namespace Previewer
                 lock (LockObject)
                 {
                     LoadFramesMax = capture.FrameCount;
+                    LoadFramesCurrent = 0;
                 }
 
                 var indexes = GetRandomIndexes(capture.FrameCount, 10);
