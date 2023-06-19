@@ -13,6 +13,7 @@ namespace Previewer
     {
         public static string? SourceFilesDirectoryPath { get; set; }
         public static string[]? SourceFilesPaths { get; set; }
+        public static int SelectionFramesCount { get; set; } = 10;
         public static string? TargetFilesDirectoryPath { get; set; }
         private static List<VideoInfo> Videos = new List<VideoInfo>();
 
@@ -106,7 +107,7 @@ namespace Previewer
                     LoadFramesCurrent = 0;
                 }
 
-                var indexes = GetRandomIndexes(capture.FrameCount, 10);
+                var indexes = GetRandomIndexes(capture.FrameCount, SelectionFramesCount);
 
                 var i = 0;
                 while (capture.IsOpened())

@@ -24,6 +24,8 @@
         private Label p_SelectSourceDirectoryLabel = new Label();
         private Label p_SelectedSourceDirectoryLabel = new Label();
         private Button p_SelectSourceDirectoryButton = new Button();
+        private Label p_SelectionFramesCountLabel = new Label();
+        private NumericUpDown p_SelectionFramesCountNumericUpDown = new NumericUpDown();
 
         private Panel p_TargetDirectoryPanel = new Panel();
         private Label p_SelectTargetDirectoryLabel = new Label();
@@ -63,7 +65,7 @@
             this.ClientSize = new System.Drawing.Size(850, 680);
             this.Text = "Previewer";
 
-            #region Source directory
+            #region Source files
 
             p_SourceDirectoryPanel.Size = new Size(400, 50);
             p_SourceDirectoryPanel.Location = new Point(10, 10);
@@ -72,10 +74,10 @@
 
             p_SelectSourceDirectoryLabel.Size = new Size(100, 20);
             p_SelectSourceDirectoryLabel.Location = new Point(0, 0);
-            p_SelectSourceDirectoryLabel.Text = "Source directory:";
+            p_SelectSourceDirectoryLabel.Text = "Source files:";
             p_SourceDirectoryPanel.Controls.Add(p_SelectSourceDirectoryLabel);
 
-            p_SelectedSourceDirectoryLabel.Size = new Size(300, 50);
+            p_SelectedSourceDirectoryLabel.Size = new Size(300, 20);
             p_SelectedSourceDirectoryLabel.Location = new Point(100, 0);
             p_SourceDirectoryPanel.Controls.Add(p_SelectedSourceDirectoryLabel);
 
@@ -84,6 +86,16 @@
             p_SelectSourceDirectoryButton.Text = "Select";
             p_SelectSourceDirectoryButton.Click += SelectSourceDirectoryButton_Click;
             p_SourceDirectoryPanel.Controls.Add(p_SelectSourceDirectoryButton);
+
+            p_SelectionFramesCountLabel.Size = new Size(100, 20);
+            p_SelectionFramesCountLabel.Location = new Point(102, 25);
+            p_SelectionFramesCountLabel.Text = "Frames count:";
+            p_SourceDirectoryPanel.Controls.Add(p_SelectionFramesCountLabel);
+
+            p_SelectionFramesCountNumericUpDown.Size = new Size(80, 30);
+            p_SelectionFramesCountNumericUpDown.Location = new Point(204, 25);
+            p_SelectionFramesCountNumericUpDown.Value = 10;
+            p_SourceDirectoryPanel.Controls.Add(p_SelectionFramesCountNumericUpDown);
 
             #endregion
 

@@ -27,8 +27,10 @@
             if (result == DialogResult.OK) // Test result.
             {
                 Manager.SourceFilesPaths = openFileDialog1.FileNames;
+                Manager.SelectionFramesCount = (int)p_SelectionFramesCountNumericUpDown.Value;
                 p_SelectedSourceDirectoryLabel.Text = $"выбрано {openFileDialog1.FileNames.Length} файлов";
                 p_SelectSourceDirectoryButton.Enabled = false;
+                p_SelectionFramesCountNumericUpDown.Enabled = false;
                 new Thread(() => Manager.LoadFiles()).Start();
                 Thread.Sleep(100);
                 new Thread(() =>
@@ -63,6 +65,7 @@
                         SetCurrentFrame(videoName, videoNumber, videosCount, frameNumber, framesCount, frame);
                         p_FramesManipulationsPanel.Visible = true;
                         p_SelectSourceDirectoryButton.Enabled = true;
+                        p_SelectionFramesCountNumericUpDown.Enabled = true;
                     });
                 }).Start();
             }
@@ -122,6 +125,8 @@
             p_NextVideoButton.Enabled = false;
             p_PreviousFrameButton.Enabled = false;
             p_NextFrameButton.Enabled = false;
+            p_SelectionFramesCountNumericUpDown.Enabled = false;
+            Manager.SelectionFramesCount = (int)p_SelectionFramesCountNumericUpDown.Value;
             new Thread(() => Manager.ReloadCurrentVideo()).Start();
             Thread.Sleep(100);
             new Thread(() =>
@@ -161,6 +166,7 @@
                     p_NextVideoButton.Enabled = true;
                     p_PreviousFrameButton.Enabled = true;
                     p_NextFrameButton.Enabled = true;
+                    p_SelectionFramesCountNumericUpDown.Enabled = true;
                 });
             }).Start();
         }
